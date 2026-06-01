@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DanOff - Prijava</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bosnianBlue: '#002395',
+                        bosnianGold: '#FFCD00',
+                        appleGray: {
+                            50: '#F5F5F7',
+                            100: '#E8E8ED',
+                            200: '#D2D2D7',
+                            800: '#1D1D1F',
+                            900: '#000000'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark .glass {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .ios-button {
+            transition: all 0.2s ease;
+        }
+        
+        .ios-button:active {
+            transform: scale(0.96);
+        }
+        
+        .input-field {
+            transition: all 0.2s ease;
+        }
+        
+        .input-field:focus {
+            transform: scale(1.01);
+        }
+
+        /* Dark mode color variations - FIXED */
+        .dark body {
+            color: white;
+        }
+        
+        .dark .text-black {
+            color: white;
+        }
+        
+        .dark .text-black\/70 {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .dark .text-black\/90 {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .dark .text-black\/50 {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .dark .text-black\/40 {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .dark .text-black\/30 {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark .border-black\/20 {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .bg-black {
+            background-color: white;
+        }
+        
+        .dark .bg-black\/5 {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .dark .bg-black\/50 {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .dark .shadow-black\/30 {
+            --tw-shadow-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark .shadow-black\/40 {
+            --tw-shadow-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .dark .ring-black\/20 {
+            --tw-ring-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .hover\:text-black:hover {
+            color: white;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body class="bg-appleGray-50 dark:bg-appleGray-900 text-black dark:text-white transition-colors duration-300 min-h-screen relative overflow-x-hidden" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-br from-gray-200/50 to-transparent dark:from-gray-800/50"></div>
+        <div class="absolute top-20 left-20 w-96 h-96 bg-gray-200/30 dark:bg-gray-800/30 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-20 w-80 h-80 bg-gray-200/30 dark:bg-gray-800/30 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Top Navigation - Fixed at top right corner -->
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <button onclick="loginApp.toggleLanguage()" class="glass rounded-full px-4 py-2 text-sm font-medium ios-button flex items-center gap-2 hover:bg-white/80 dark:hover:bg-gray-800/80 shadow-lg">
+            <i data-lucide="globe" class="w-4 h-4"></i>
+            <span id="lang-label">BS</span>
+        </button>
+        <button onclick="loginApp.toggleTheme()" class="glass rounded-full p-2 ios-button hover:bg-white/80 text-black dark:text-white shadow-lg">
+            <i data-lucide="sun" class="w-5 h-5 dark:hidden"></i>
+            <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen flex items-center justify-center p-4 lg:p-8 pt-16 sm:pt-20 lg:pt-24">
+        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center fade-in relative z-10">
+            
+            <!-- Left Side: Info Guide -->
+            <div class="order-2 lg:order-1 space-y-8 lg:pr-8">
+                <div class="space-y-6 text-center">
+                    <div class="space-y-2">
+                        <h1 class="text-3xl lg:text-4xl font-bold leading-tight text-black text-center tracking-tight" data-i18n="welcomeTitle">
+                            Upravljajte godišnjim odmorom
+                        </h1>
+                        <div class="flex items-center justify-center gap-3">
+                            <div class="h-px w-12 bg-black/20"></div>
+                            <p class="text-lg lg:text-xl font-semibold italic text-black/90" data-i18n="welcomeHighlight">jednostavno i efikasno</p>
+                            <div class="h-px w-12 bg-black/20"></div>
+                        </div>
+                    </div>
+                    <p class="text-base text-black/70 max-w-md leading-relaxed mx-auto text-center" data-i18n="welcomeDesc">
+                        DanOff je moderni sistem za upravljanje godišnjim odmorom prilagođen zakonima Bosne i Hercegovine. 
+                        Podnesite zahtjeve, pratite stanje i generišite pravne dokumente u par klikova.
+                    </p>
+                </div>
+
+                <!-- Feature Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="glass rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:border-black/20 dark:hover:border-white/20 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-black dark:text-white mb-3">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-black dark:text-white" data-i18n="feature1Title">Brzo podnošenje</h3>
+                        <p class="text-sm text-black/70 dark:text-white/70" data-i18n="feature1Desc">Podnesite zahtjev za odmor za manje od minute</p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:border-black/20 dark:hover:border-white/20 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-black dark:text-white mb-3">
+                            <i data-lucide="file-check" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-black dark:text-white" data-i18n="feature2Title">Pravna usklađenost</h3>
+                        <p class="text-sm text-black/70 dark:text-white/70" data-i18n="feature2Desc">Automatski generisani dokumenti po zakonu BiH</p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:border-black/20 dark:hover:border-white/20 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-black dark:text-white mb-3">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-black dark:text-white" data-i18n="feature3Title">Timska sinhronizacija</h3>
+                        <p class="text-sm text-black/70 dark:text-white/70" data-i18n="feature3Desc">Vidite ko je na poslu u svakom trenutku</p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:border-black/20 dark:hover:border-white/20 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-black dark:text-white mb-3">
+                            <i data-lucide="smartphone" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1 text-black dark:text-white" data-i18n="feature4Title">Mobile ready</h3>
+                        <p class="text-sm text-black/70 dark:text-white/70" data-i18n="feature4Desc">Pristup sa bilo kojeg uređaja, bilo gdje</p>
+                    </div>
+                </div>
+
+                <!-- Supported Entities -->
+                <div class="flex items-center gap-4 text-sm text-black dark:text-white pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <span data-i18n="supportedEntities">Podržani entiteti:</span>
+                    <div class="flex gap-3">
+                        <span class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white text-xs font-medium">FBiH</span>
+                        <span class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white text-xs font-medium">RS</span>
+                        <span class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-black dark:text-white text-xs font-medium">Brčko</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Login Form -->
+            <div class="order-1 lg:order-2">
+                <div class="glass rounded-3xl p-6 lg:p-8 shadow-2xl border border-gray-200 max-w-md mx-auto lg:max-w-none">
+                    <div class="text-center mb-6 lg:hidden">
+                        <h2 class="text-2xl font-bold text-black" data-i18n="loginTitle">Prijava</h2>
+                        <p class="text-sm text-black/70 mt-1" data-i18n="loginSubtitle">Pristupite vašem nalogu</p>
+                    </div>
+
+                    <div class="space-y-5">
+                        <!-- Entity Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-black dark:text-white mb-3" data-i18n="selectEntity">Odaberite entitet</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="entity" value="fbih" class="peer sr-only" checked onchange="loginApp.updateEntityUI('fbih')">
+                                    <div class="h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-black dark:peer-checked:border-white peer-checked:bg-black/5 dark:peer-checked:bg-white/10 transition-all text-center ios-button hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center">
+                                        <span class="text-sm font-semibold text-black dark:text-white">FBiH</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="entity" value="rs" class="peer sr-only" onchange="loginApp.updateEntityUI('rs')">
+                                    <div class="h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-black dark:peer-checked:border-white peer-checked:bg-black/5 dark:peer-checked:bg-white/10 transition-all text-center ios-button hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center">
+                                        <span class="text-sm font-semibold text-black dark:text-white">RS</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="entity" value="brcko" class="peer sr-only" onchange="loginApp.updateEntityUI('brcko')">
+                                    <div class="h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-black dark:peer-checked:border-white peer-checked:bg-black/5 dark:peer-checked:bg-white/10 transition-all text-center ios-button hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center">
+                                        <span class="text-sm font-semibold text-black dark:text-white">Brčko</span>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-black dark:text-white mb-3" data-i18n="selectRole">Odaberite ulogu</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="role" value="employee" class="peer sr-only" checked onchange="loginApp.updateRoleUI('employee')">
+                                    <div class="p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-black dark:peer-checked:border-white peer-checked:bg-black/5 dark:peer-checked:bg-white/10 transition-all text-center ios-button hover:bg-gray-50 dark:hover:bg-gray-800 h-16 flex flex-col items-center justify-center gap-1">
+                                        <i data-lucide="user" class="w-5 h-5 text-black/40 dark:text-white/40 peer-checked:text-black dark:peer-checked:text-white"></i>
+                                        <span class="text-xs font-medium text-black dark:text-white" data-i18n="employee">Zaposlenik</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="role" value="manager" class="peer sr-only" onchange="loginApp.updateRoleUI('manager')">
+                                    <div class="p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-black dark:peer-checked:border-white peer-checked:bg-black/5 dark:peer-checked:bg-white/10 transition-all text-center ios-button hover:bg-gray-50 dark:hover:bg-gray-800 h-16 flex flex-col items-center justify-center gap-1">
+                                        <i data-lucide="users" class="w-5 h-5 text-black/40 dark:text-white/40 peer-checked:text-black dark:peer-checked:text-white"></i>
+                                        <span class="text-xs font-medium text-black dark:text-white" data-i18n="manager">Menadžer</span>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="role" value="admin" class="peer sr-only" onchange="loginApp.updateRoleUI('admin')">
+                                    <div class="p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-black dark:peer-checked:border-white peer-checked:bg-black/5 dark:peer-checked:bg-white/10 transition-all text-center ios-button hover:bg-gray-50 dark:hover:bg-gray-800 h-16 flex flex-col items-center justify-center gap-1">
+                                        <i data-lucide="shield" class="w-5 h-5 text-black/40 dark:text-white/40 peer-checked:text-black dark:peer-checked:text-white"></i>
+                                        <span class="text-xs font-medium text-black dark:text-white" data-i18n="admin">Administrator</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Email Input -->
+                        <div>
+                            <label class="block text-sm font-medium text-black dark:text-white mb-2" data-i18n="email">Email adresa</label>
+                            <div class="relative">
+                                <i data-lucide="mail" class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                                <input type="email" id="email" placeholder="ime@kompanija.ba" 
+                                       class="input-field w-full pl-12 pr-4 py-3.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 focus:border-black dark:focus:border-white text-base text-black dark:text-white placeholder-black/30 dark:placeholder-white/30"
+                                       onkeypress="if(event.key==='Enter') loginApp.login()">
+                            </div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div>
+                            <label class="block text-sm font-medium text-black dark:text-white mb-2" data-i18n="password">Lozinka</label>
+                            <div class="relative">
+                                <i data-lucide="lock" class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-black/40 dark:text-white/40"></i>
+                                <input type="password" id="password" placeholder="••••••••" 
+                                       class="input-field w-full pl-12 pr-12 py-3.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-black/20 dark:focus:ring-white/20 focus:border-black dark:focus:border-white text-base text-black dark:text-white placeholder-black/30 dark:placeholder-white/30"
+                                       onkeypress="if(event.key==='Enter') loginApp.login()">
+                                <button onclick="loginApp.togglePassword()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors">
+                                    <i data-lucide="eye" id="eye-icon" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="error-message" class="hidden bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl p-3 flex items-center gap-2 text-sm text-black dark:text-white">
+                            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                            <span id="error-text">Neispravni podaci za prijavu</span>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-black dark:text-white focus:ring-black dark:focus:ring-white">
+                                <span class="text-sm text-black dark:text-white" data-i18n="rememberMe">Zapamti me</span>
+                            </label>
+                            <button onclick="loginApp.forgotPassword()" class="text-sm text-black dark:text-white hover:underline font-medium italic" data-i18n="forgotPassword">Zaboravili lozinku?</button>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button onclick="loginApp.login()" id="login-btn" class="w-full bg-black dark:bg-white text-white dark:text-black py-3.5 rounded-xl font-semibold ios-button shadow-lg shadow-black/30 dark:shadow-white/30 hover:shadow-xl hover:shadow-black/40 dark:hover:shadow-white/40 flex items-center justify-center gap-2 text-base transition-all">
+                            <span data-i18n="login">Prijavi se</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+
+                        <!-- Demo Credentials Hint -->
+                        <div class="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <p class="text-xs text-black/50 dark:text-white/50 mb-2" data-i18n="demoHint">Demo podaci za testiranje:</p>
+                            <div class="grid grid-cols-1 gap-1.5 text-xs text-black/70 dark:text-white/70 font-mono">
+                                <div class="flex justify-between items-center px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <span>zaposlenik@danoff.ba</span>
+                                    <span class="font-semibold underline">pass123</span>
+                                </div>
+                                <div class="flex justify-between items-center px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <span>menadzer@danoff.ba</span>
+                                    <span class="font-semibold underline">pass123</span>
+                                </div>
+                                <div class="flex justify-between items-center px-3 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <span>admin@danoff.ba</span>
+                                    <span class="font-semibold underline">admin123</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Footer -->
+                <div class="lg:hidden text-center mt-6 text-sm text-black/50 dark:text-white/50">
+                    <p>&copy; 2024 DanOff. <span data-i18n="allRightsReserved">Sva prava pridržana.</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden items-center justify-center">
+        <div class="glass bg-white dark:bg-gray-800 rounded-2xl p-6 flex flex-col items-center gap-4 shadow-2xl">
+            <div class="w-12 h-12 border-4 border-black/20 dark:border-white/20 border-t-black dark:border-t-white rounded-full animate-spin"></div>
+            <p class="text-sm font-medium text-black dark:text-white" data-i18n="loggingIn">Prijava u toku...</p>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

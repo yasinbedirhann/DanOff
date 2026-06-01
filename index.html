@@ -1,0 +1,1085 @@
+<!DOCTYPE html> <!-- Deklaracija tipa dokumenta - govori pretraživaču da je ovo HTML5 dokument -->
+
+<html lang="en" class="scroll-smooth"> <!-- Početak HTML dokumenta; lang="en" označava engleski jezik; scroll-smooth omogućava glatko skrolovanje -->
+
+<head> <!-- Zaglavlje dokumenta - sadrži metapodatke, skripte i stilove koji se ne prikazuju direktno na stranici -->
+
+    <meta charset="UTF-8"> <!-- Postavlja kodiranje znakova na UTF-8, što podržava sve specijalne znakove (š, č, ž...) -->
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <!-- Kontroliše prikaz na mobilnim uređajima: prilagođava širinu ekranu, zabranjuje zumiranje korisnika -->
+
+    <title>DanOff - Godišnji Odmor</title> <!-- Naslov kartice u pretraživaču -->
+
+    <script src="https://cdn.tailwindcss.com"></script> <!-- Učitava Tailwind CSS biblioteku za stilizovanje putem klasa direktno u HTML-u -->
+
+    <script src="https://unpkg.com/lucide@latest"></script> <!-- Učitava Lucide biblioteku ikona (npr. kalendar, zvonce, korisnik...) -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <!-- Učitava jsPDF biblioteku za generisanje PDF dokumenata direktno u pretraživaču -->
+
+    <script>
+        /* Konfiguracija Tailwind CSS-a - proširuje podrazumijevane stilove */
+        tailwind.config = {
+            darkMode: 'class',  /* Tamni način rada se aktivira kada HTML element ima klasu 'dark' */
+
+            theme: {
+                extend: {
+                    colors: {
+                        bosnianBlue: '#002395',
+                        bosnianGold: '#FFCD00',
+                        appleGray: {
+                            50: '#F5F5F7',
+                            100: '#E8E8ED',
+                            200: '#D2D2D7',
+                            800: '#1D1D1F',
+                            900: '#000000'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+                    },
+                    backdropBlur: {
+                        ios: '20px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .dark .glass {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .sheet-modal {
+            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .ios-button {
+            transition: all 0.2s ease;
+        }
+        
+        .ios-button:active {
+            transform: scale(0.96);
+        }
+        
+        .slide-over {
+            animation: slideOver 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        @keyframes slideOver {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .kanban-card {
+            transition: all 0.2s ease;
+        }
+        
+        .kanban-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+        }
+        
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #002395;
+        }
+        
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #002395;
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #D2D2D7;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #86868B;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #424245;
+        }
+
+        /* iOS safe-area padding for home indicator */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            #employee-dashboard,
+            #manager-dashboard,
+            #admin-dashboard {
+                padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Compact stat cards on mobile 2-col grid */
+        @media (max-width: 639px) {
+            #manager-dashboard .grid-cols-2 > .glass,
+            #admin-dashboard .grid-cols-2 > .glass {
+                padding: 0.75rem;
+            }
+            #manager-dashboard .grid-cols-2 .text-3xl,
+            #admin-dashboard .grid-cols-2 .text-3xl {
+                font-size: 1.5rem;
+            }
+            #manager-dashboard .grid-cols-2 > .glass .w-10,
+            #admin-dashboard .grid-cols-2 > .glass .w-10 {
+                width: 2rem;
+                height: 2rem;
+            }
+        }
+
+        /* Responsive admin tables — card layout on mobile, normal table on sm+ */
+        @media (max-width: 639px) {
+            .responsive-table thead { display: none; }
+            .responsive-table tbody tr {
+                display: block;
+                margin-bottom: 0.75rem;
+                border: 1px solid rgba(0,0,0,0.07);
+                border-radius: 0.75rem;
+                padding: 0.6rem 0.75rem;
+                background: rgba(255,255,255,0.5);
+            }
+            .dark .responsive-table tbody tr {
+                background: rgba(255,255,255,0.04);
+                border-color: rgba(255,255,255,0.1);
+            }
+            .responsive-table tbody tr:last-child { margin-bottom: 0; }
+            .responsive-table tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.25rem 0;
+                border: none !important;
+                font-size: 0.8125rem;
+            }
+            .responsive-table tbody td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.6875rem;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                color: #9ca3af;
+                flex-shrink: 0;
+                margin-right: 0.5rem;
+            }
+            .responsive-table tbody td[data-label=""]::before { content: none; }
+            .responsive-table tbody td[data-label=""] { justify-content: flex-end; }
+        }
+
+        /* Min touch target size */
+        button, [role="button"] {
+            min-height: 36px;
+        }
+    </style>
+</head>
+<body class="bg-appleGray-50 text-appleGray-900 dark:bg-black dark:text-white transition-colors duration-300 overflow-x-hidden">
+
+    <!-- Auth Check -->
+    <script>
+        // Check authentication immediately
+        (function() {
+            const session = localStorage.getItem('danoff_session');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAuth = urlParams.get('auth') === 'true';
+            
+            if (!session && !isAuth) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // If we have session but no auth param, add it
+            if (session && !isAuth) {
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('auth', 'true');
+                window.history.replaceState({}, '', currentUrl);
+            }
+        })();
+    </script>
+
+    <!-- Notification Toast (Moved down slightly to avoid button overlap) -->
+    <div id="notification-toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[55] glass rounded-2xl px-4 sm:px-6 py-3 sm:py-4 shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 flex items-center gap-3 min-w-[260px] sm:min-w-[300px] max-w-[calc(100vw-2rem)]">
+        <div class="w-10 h-10 rounded-full bg-bosnianBlue/10 flex items-center justify-center text-bosnianBlue">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+            <p id="toast-title" class="font-semibold text-sm">Notification</p>
+            <p id="toast-message" class="text-xs text-gray-500 dark:text-gray-400">Message</p>
+        </div>
+    </div>
+
+    <!-- Language & Theme Toggle (Entity removed - only on login) -->
+    <div id="global-controls" class="fixed top-3 right-3 sm:top-4 sm:right-4 z-[60] flex gap-1.5 sm:gap-2 flex-wrap justify-end max-w-[180px] sm:max-w-[210px]">
+        <button onclick="app.toggleLanguage()" class="glass rounded-full px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium ios-button flex items-center gap-1 sm:gap-2 hover:bg-white/80 dark:hover:bg-gray-800/80 shadow-lg">
+            <i data-lucide="globe" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <span id="lang-label">BS</span>
+        </button>
+        <button onclick="app.toggleTheme()" class="glass rounded-full p-1.5 sm:p-2 ios-button hover:bg-white/80 dark:hover:bg-gray-800/80 shadow-lg">
+            <i data-lucide="sun" class="w-3.5 h-3.5 sm:w-4 sm:h-4 dark:hidden"></i>
+            <i data-lucide="moon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 hidden dark:block"></i>
+        </button>
+        <button onclick="app.toggleFocusMode()" id="focus-toggle" class="glass rounded-full p-1.5 sm:p-2 ios-button hover:bg-white/80 dark:hover:bg-gray-800/80 hidden shadow-lg" title="Focus Mode">
+            <i data-lucide="moon" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+        </button>
+        <button onclick="app.logout()" class="glass rounded-full p-1.5 sm:p-2 ios-button hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 shadow-lg" title="Odjava / Logout">
+            <i data-lucide="log-out" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+        </button>
+    </div>
+
+    <!-- Dynamic Island / Live Activity Container (Moved to bottom to avoid top clutter) -->
+    <div id="dynamic-island" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-black text-white px-4 sm:px-6 py-3 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-500 flex items-center gap-3 min-w-[260px] sm:min-w-[300px] max-w-[calc(100vw-2rem)] justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-bosnianBlue flex items-center justify-center animate-pulse">
+                <i data-lucide="plane" class="w-4 h-4 text-white"></i>
+            </div>
+            <div>
+                <p id="island-title" class="text-xs font-semibold opacity-90" data-i18n="on-leave">Na odmoru</p>
+                <p id="island-subtitle" class="text-[10px] opacity-70">Preostalo 5 dana</p>
+            </div>
+        </div>
+        <button onclick="app.closeDynamicIsland()" class="opacity-70 hover:opacity-100">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+    <!-- Role Selection (Initial Screen) -->
+    <div id="role-selection" class="min-h-screen flex items-center justify-center p-6 fade-in">
+        <div class="max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-bosnianBlue to-blue-600 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-xl">
+                    <i data-lucide="calendar-check" class="w-10 h-10 text-white"></i>
+                </div>
+                <h1 class="text-4xl font-bold tracking-tight mb-2">DanOff</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-lg" data-i18n="subtitle">Sistem za upravljanje godišnjim odmorom</p>
+            </div>
+
+            <!-- User Info Card -->
+            <div id="user-info-card" class="glass rounded-2xl p-4 mb-6 border border-gray-200 dark:border-gray-800 hidden">
+                <div class="flex items-center gap-3">
+                    <div id="user-avatar" class="w-12 h-12 rounded-full bg-gradient-to-br from-bosnianBlue to-blue-600 flex items-center justify-center text-white font-semibold">
+                        AH
+                    </div>
+                    <div class="flex-1">
+                        <h3 id="user-name" class="font-semibold text-lg">Amar Hodžić</h3>
+                        <p id="user-role" class="text-sm text-gray-500 dark:text-gray-400">Senior Developer</p>
+                    </div>
+                    <!-- Removed logout from here - moved to bottom of screen and global controls -->
+                </div>
+            </div>
+
+            <div class="space-y-4" id="role-buttons">
+                <button onclick="app.setRole('employee')" id="btn-employee" class="w-full glass rounded-2xl p-6 ios-button text-left group hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" data-i18n="employee">Zaposlenik</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="employee-desc">Podnesite zahtjev za godišnji odmor</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                            <i data-lucide="user" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </button>
+
+                <button onclick="app.setRole('manager')" id="btn-manager" class="w-full glass rounded-2xl p-6 ios-button text-left group hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200 dark:border-gray-800">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" data-i18n="manager">Menadžer</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="manager-desc">Odobrite zahtjeve i upravljajte timom</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </button>
+
+                <button onclick="app.setRole('admin')" id="btn-admin" class="w-full glass rounded-2xl p-6 ios-button text-left group hover:bg-white/90 dark:hover:bg-gray-800/90 border border-gray-200 dark:border-gray-800 hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" data-i18n="admin">Administrator</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="admin-desc">Upravljanje sistemom i korisnicima</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                            <i data-lucide="shield" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="mt-8 text-center space-y-3">
+                <button onclick="app.requestNotificationPermission()" class="text-sm text-bosnianBlue hover:underline flex items-center justify-center gap-2 mx-auto">
+                    <i data-lucide="bell-ring" class="w-4 h-4"></i>
+                    <span data-i18n="enable-notifications">Omogući obavještenja</span>
+                </button>
+                <!-- Logout button at bottom of role selection -->
+                <div class="pt-4 border-t border-gray-200 mt-4">
+                    <button onclick="app.logout()" class="text-sm text-red-600 hover:text-red-700 flex items-center justify-center gap-2 mx-auto font-medium">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span data-i18n="logout">Odjava</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Dashboard -->
+    <div id="employee-dashboard" class="hidden min-h-screen pb-24 fade-in">
+        <!-- Header -->
+        <div class="sticky top-0 z-30 glass border-b border-gray-200/50 dark:border-gray-800/50 px-4 sm:px-6 py-3 sm:py-4">
+            <div class="max-w-5xl mx-auto flex flex-col gap-2 sm:gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <button onclick="app.resetRole()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full ios-button flex-shrink-0">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <h2 class="text-xl sm:text-2xl font-bold truncate" data-i18n="my-leave">Moj godišnji</h2>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pl-1 flex-wrap">
+                    <div id="employee-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                        AH
+                    </div>
+                    <span id="employee-name" class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">Amar Hodžić</span>
+                    <span id="employee-position" class="text-xs px-2 py-0.5 rounded-full bg-bosnianBlue/10 text-bosnianBlue dark:bg-bosnianBlue/20 whitespace-nowrap">Senior Developer</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+            <!-- Days Used Ring Card -->
+            <div class="glass rounded-3xl p-5 sm:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-bosnianBlue/10 to-transparent rounded-full blur-3xl"></div>
+
+                <div class="relative flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+                    <!-- Ring -->
+                    <div class="relative flex-shrink-0">
+                        <svg width="140" height="140" viewBox="0 0 140 140">
+                            <circle cx="70" cy="70" r="58" fill="none" stroke="currentColor" stroke-width="10" class="text-gray-200 dark:text-gray-700"/>
+                            <circle id="days-ring" cx="70" cy="70" r="58" fill="none" stroke="currentColor" stroke-width="10"
+                                stroke-dasharray="364.42" stroke-dashoffset="364.42"
+                                stroke-linecap="round"
+                                class="progress-ring-circle text-bosnianBlue"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="days-used-number" class="text-3xl font-bold text-bosnianBlue">0</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400" data-i18n="days">dana</span>
+                        </div>
+                    </div>
+
+                    <!-- Info + Buttons -->
+                    <div class="flex-1 space-y-4 text-center sm:text-left">
+                        <div>
+                            <h3 class="text-lg font-semibold" data-i18n="myLeave">Moj godišnji</h3>
+                            <p id="total-entitlement" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Nema iskorištenih dana</p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3 justify-center sm:justify-start">
+                            <button onclick="app.openRequestSheet()" class="bg-bosnianBlue text-white px-6 py-3 rounded-full font-medium ios-button shadow-lg shadow-bosnianBlue/30 hover:shadow-xl hover:shadow-bosnianBlue/40 flex items-center gap-2">
+                                <i data-lucide="plus" class="w-5 h-5"></i>
+                                <span data-i18n="new-request">Novi zahtjev</span>
+                            </button>
+                            <button onclick="app.openVacationTrade()" class="glass px-6 py-3 rounded-full font-medium ios-button flex items-center gap-2 border border-gray-200 dark:border-gray-700">
+                                <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+                                <span data-i18n="day-swap">Zamjena dana</span>
+                            </button>
+                            <button onclick="app.showTeamAvailability()" class="glass px-6 py-3 rounded-full font-medium ios-button flex items-center gap-2 border border-gray-200 dark:border-gray-700">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                                <span data-i18n="who-is-at-work">Tko je na poslu?</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Archive -->
+            <div class="mb-6">
+                <div class="relative">
+                    <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="archive-search" data-i18n-placeholder="archive-placeholder"
+                           placeholder="Pretraži arhivu (npr. 'august 2023', 'bolovanje')..."
+                           class="w-full pl-12 pr-4 py-3 rounded-2xl glass border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20"
+                           onkeyup="app.searchArchive(this.value)">
+                </div>
+            </div>
+
+            <!-- Leave Calendar -->
+            <div class="glass rounded-2xl p-4 sm:p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                        <i data-lucide="calendar-days" class="w-5 h-5 text-gray-400"></i>
+                        <span id="calendar-month-label"></span>
+                    </h3>
+                    <div class="flex gap-1">
+                        <button onclick="app.prevCalendarMonth()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full ios-button">
+                            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="app.nextCalendarMonth()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full ios-button">
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 text-center text-xs text-gray-400 mb-2" id="calendar-day-headers"></div>
+                <div class="grid grid-cols-7 gap-1" id="leave-calendar"></div>
+                <div class="flex gap-4 mt-3 text-xs text-gray-500">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 rounded bg-bosnianBlue inline-block"></span>
+                        <span data-i18n="approved-status">Odobreno</span>
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 rounded bg-yellow-400 inline-block"></span>
+                        <span data-i18n="awaiting-approval">Na čekanju</span>
+                    </span>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-xs text-gray-400 mb-2" data-i18n="year-overview">Pregled godine</p>
+                    <div class="grid grid-cols-6 sm:grid-cols-12 gap-1" id="forecast-chart"></div>
+                </div>
+            </div>
+
+            <!-- Recent Requests -->
+            <div>
+                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-gray-400"></i>
+                    <span data-i18n="recent-requests">Nedavni zahtjevi</span>
+                    <span id="request-count" class="text-sm text-gray-400 font-normal">(0)</span>
+                </h3>
+                <div id="employee-requests" class="space-y-3">
+                    <!-- Requests injected here -->
+                    <div class="text-center py-12 text-gray-400">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+                        <p data-i18n="no-requests">Nema podnesenih zahtjeva</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden min-h-screen pb-24 fade-in">
+        <!-- Header -->
+        <div class="sticky top-0 z-30 glass border-b border-gray-200/50 dark:border-gray-800/50 px-4 sm:px-6 py-3 sm:py-4">
+            <div class="max-w-7xl mx-auto flex flex-col gap-2 sm:gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <button onclick="app.resetRole()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full ios-button flex-shrink-0">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <h2 class="text-xl sm:text-2xl font-bold truncate" data-i18n="administration">Administracija</h2>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pl-1 flex-wrap">
+                    <div id="admin-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                        AD
+                    </div>
+                    <span id="admin-name" class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">Admin Sistem</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 whitespace-nowrap">Administrator</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <!-- Admin Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="total-users">Ukupno korisnika</span>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="admin-stat-users" class="text-3xl font-bold">5</span>
+                </div>
+                
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="active-requests">Aktivnih zahtjeva</span>
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="admin-stat-pending" class="text-3xl font-bold">0</span>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="approved-this-month">Odobreno ovaj mjesec</span>
+                        <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="admin-stat-approved" class="text-3xl font-bold">0</span>
+                </div>
+
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="entity">Entitet</span>
+                        <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600">
+                            <i data-lucide="building-2" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="admin-entity-display" class="text-xl font-bold">FBiH</span>
+                </div>
+            </div>
+
+            <!-- User Management -->
+            <div class="glass rounded-2xl p-4 sm:p-6 mb-6">
+                <div class="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+                    <h3 class="text-base sm:text-xl font-semibold" data-i18n="user-management">Upravljanje korisnicima</h3>
+                    <button onclick="app.showAddUserModal()" class="bg-bosnianBlue text-white px-3 sm:px-4 py-2 rounded-xl text-sm font-medium ios-button flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline" data-i18n="add-user">Dodaj korisnika</span>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm responsive-table sm:min-w-[520px]">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
+                                <th class="pb-3 font-medium" data-i18n="name-col">Ime</th>
+                                <th class="pb-3 font-medium">Email</th>
+                                <th class="pb-3 font-medium" data-i18n="role-col">Uloga</th>
+                                <th class="pb-3 font-medium" data-i18n="position-col">Pozicija</th>
+                                <th class="pb-3 font-medium" data-i18n="actions-col">Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list" class="divide-y divide-gray-200 dark:divide-gray-800">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- All Requests -->
+            <div class="glass rounded-2xl p-4 sm:p-6">
+                <h3 class="text-base sm:text-xl font-semibold mb-4 sm:mb-6" data-i18n="all-requests">Svi zahtjevi</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm responsive-table sm:min-w-[580px]">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
+                                <th class="pb-3 font-medium" data-i18n="employee">Zaposlenik</th>
+                                <th class="pb-3 font-medium" data-i18n="period-col">Period</th>
+                                <th class="pb-3 font-medium text-center" data-i18n="days-col">Dana</th>
+                                <th class="pb-3 font-medium" data-i18n="type-col">Vrsta</th>
+                                <th class="pb-3 font-medium">Status</th>
+                                <th class="pb-3 font-medium" data-i18n="actions-col">Akcije</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-requests-list">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Dashboard -->
+    <div id="manager-dashboard" class="hidden min-h-screen pb-24 fade-in">
+        <!-- Header -->
+        <div class="sticky top-0 z-30 glass border-b border-gray-200/50 dark:border-gray-800/50 px-4 sm:px-6 py-3 sm:py-4">
+            <div class="max-w-7xl mx-auto flex flex-col gap-2 sm:gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <button onclick="app.resetRole()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full ios-button flex-shrink-0">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <h2 class="text-xl sm:text-2xl font-bold truncate" data-i18n="team-management">Upravljanje timom</h2>
+                    </div>
+                    <!-- Report button: desktop only in title row -->
+                    <div class="hidden sm:flex items-center gap-4 flex-shrink-0">
+                        <button onclick="app.generateLegalReport()" class="bg-bosnianBlue/10 text-bosnianBlue px-4 py-2 rounded-full text-sm font-medium ios-button hover:bg-bosnianBlue/20 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <span data-i18n="legal-report">Izvještaj</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pl-1 flex-wrap">
+                    <div id="manager-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                        EH
+                    </div>
+                    <span id="manager-name" class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">Emina Hadžić</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 whitespace-nowrap">Team Lead</span>
+                    <div class="hidden md:flex items-center gap-2 ml-4 glass rounded-full px-3 py-1">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span class="text-xs font-medium" data-i18n="team-active">5 aktivnih članova</span>
+                    </div>
+                    <!-- Report button: mobile only in info row, safely below global controls -->
+                    <button onclick="app.generateLegalReport()" class="sm:hidden ml-auto bg-bosnianBlue/10 text-bosnianBlue px-3 py-1.5 rounded-full text-xs font-medium ios-button hover:bg-bosnianBlue/20 flex items-center gap-1">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        <span data-i18n="legal-report">Izvještaj</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <!-- Smart Stats with Burnout & Salary Impact -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="pending">Na čekanju</span>
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600">
+                            <i data-lucide="clock" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="stat-pending" class="text-3xl font-bold">0</span>
+                </div>
+                
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="approved-this-month">Odobreno ovaj mjesec</span>
+                        <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="stat-approved" class="text-3xl font-bold">0</span>
+                </div>
+
+                <div class="glass rounded-2xl p-6 relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="leave-cost">Trošak odmora</span>
+                        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
+                            <i data-lucide="banknote" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="stat-cost" class="text-2xl font-bold">0 KM</span>
+                    <p class="text-xs text-gray-400 mt-1" data-i18n="estimated-cost">Procijenjeni trošak</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 relative overflow-hidden cursor-pointer" onclick="app.showBurnoutDetails()">
+                    <div id="burnout-indicator" class="absolute inset-0 bg-gradient-to-br from-green-400/20 to-transparent opacity-50"></div>
+                    <div class="flex items-center justify-between mb-2 relative z-10">
+                        <span class="text-sm text-gray-500 dark:text-gray-400" data-i18n="team-health">Zdravlje tima</span>
+                        <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    <span id="health-score" class="text-3xl font-bold relative z-10">98%</span>
+                    <p id="health-subtitle" class="text-xs text-gray-400 mt-1 relative z-10" data-i18n="low-burnout-risk">Niski rizik od burn-outa</p>
+                </div>
+            </div>
+
+            <!-- Conflict Prediction AI Alert -->
+            <div id="ai-conflict-warning" class="hidden mb-6 glass rounded-2xl p-4 border-l-4 border-orange-500 bg-orange-50/50 dark:bg-orange-900/20">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="brain" class="w-5 h-5 text-orange-600 mt-0.5"></i>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-sm text-orange-800 dark:text-orange-200" data-i18n="ai-conflict-title">AI Upozorenje o konfliktu</h4>
+                        <p class="text-sm text-orange-700 dark:text-orange-300 mt-1" data-i18n="ai-conflict-msg">3 člana tima već planiraju odmor u ovom periodu. Preporučujemo pomeranje za 7 dana.</p>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="app.showTeamHeatmap()" class="text-xs bg-orange-600 text-white px-3 py-1.5 rounded-lg" data-i18n="show-heatmap">Prikaži heat map</button>
+                            <button onclick="app.dismissAIWarning()" class="text-xs text-orange-700 hover:underline" data-i18n="dismiss">Odbaci</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kanban Board -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+                <!-- Pending Column -->
+                <div class="glass rounded-2xl p-4 min-h-[120px] lg:min-h-[500px]">
+                    <div class="flex items-center justify-between mb-4 sticky top-0">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                            <span data-i18n="pending-requests">Na čekanju</span>
+                            <span id="count-pending" class="bg-gray-200 dark:bg-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                        </h3>
+                    </div>
+                    <div id="kanban-pending" class="space-y-3">
+                        <!-- Pending items -->
+                    </div>
+                </div>
+
+                <!-- Approved Column -->
+                <div class="glass rounded-2xl p-4 min-h-[120px] lg:min-h-[500px]">
+                    <div class="flex items-center justify-between mb-4 sticky top-0">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            <span data-i18n="approved">Odobreno</span>
+                            <span id="count-approved" class="bg-gray-200 dark:bg-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                        </h3>
+                    </div>
+                    <div id="kanban-approved" class="space-y-3">
+                        <!-- Approved items -->
+                    </div>
+                </div>
+
+                <!-- Rejected Column -->
+                <div class="glass rounded-2xl p-4 min-h-[120px] lg:min-h-[500px]">
+                    <div class="flex items-center justify-between mb-4 sticky top-0">
+                        <h3 class="font-semibold flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                            <span data-i18n="rejected">Odbijeno</span>
+                            <span id="count-rejected" class="bg-gray-200 dark:bg-gray-700 text-xs px-2 py-1 rounded-full">0</span>
+                        </h3>
+                    </div>
+                    <div id="kanban-rejected" class="space-y-3">
+                        <!-- Rejected items -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Sheet Modal (iOS Style) -->
+    <div id="request-sheet" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="app.closeRequestSheet()"></div>
+        <div class="absolute bottom-0 left-0 right-0 md:left-1/2 md:right-auto md:top-1/2 md:bottom-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-white dark:bg-gray-900 md:rounded-3xl rounded-t-3xl sheet-modal transform translate-y-full shadow-2xl max-h-[92vh] overflow-y-auto">
+            <!-- Mobile drag handle -->
+            <div class="md:hidden flex justify-center pt-3 pb-1">
+                <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+            </div>
+            <div class="sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between rounded-t-3xl z-10">
+                <button onclick="app.closeRequestSheet()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 ios-button">
+                    <span data-i18n="cancel">Otkaži</span>
+                </button>
+                <h3 class="font-semibold text-lg" data-i18n="new-leave-request">Novi zahtjev za odmor</h3>
+                <button onclick="app.submitRequest()" class="text-bosnianBlue font-semibold ios-button" data-i18n="submit">Pošalji</button>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Date Selection -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="start-date">Datum početka</label>
+                        <input type="text" id="start-date" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20 text-base" placeholder="DD/MM/YYYY" readonly>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="end-date">Datum završetka</label>
+                        <input type="text" id="end-date" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20 text-base" placeholder="DD/MM/YYYY" readonly>
+                    </div>
+                </div>
+
+                <!-- Duration Preview -->
+                <div class="bg-bosnianBlue/5 dark:bg-bosnianBlue/10 rounded-2xl p-4 flex items-center justify-between">
+                    <span class="text-sm font-medium" data-i18n="total-days">Ukupno radnih dana:</span>
+                    <span id="calculated-days" class="text-2xl font-bold text-bosnianBlue">0</span>
+                </div>
+
+                <!-- Holiday Warning -->
+                <div id="holiday-warning" class="hidden bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 flex items-start gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-xs text-yellow-800 dark:text-yellow-200" data-i18n="holiday-warning">Odabrani period uključuje državni praznik. Radni dani će biti automatski preračunati.</p>
+                </div>
+
+                <!-- Leave Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-3" data-i18n="leave-type">Vrsta odmora</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="leave-type" value="annual" class="peer sr-only" checked>
+                            <div class="p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-bosnianBlue peer-checked:bg-bosnianBlue/5 dark:peer-checked:bg-bosnianBlue/10 transition-all text-center">
+                                <i data-lucide="sun" class="w-5 h-5 mx-auto mb-1 text-gray-400 peer-checked:text-bosnianBlue"></i>
+                                <span class="text-xs font-medium" data-i18n="annual">Godišnji</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="leave-type" value="sick" class="peer sr-only">
+                            <div class="p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-bosnianBlue peer-checked:bg-bosnianBlue/5 dark:peer-checked:bg-bosnianBlue/10 transition-all text-center">
+                                <i data-lucide="heart-pulse" class="w-5 h-5 mx-auto mb-1 text-gray-400 peer-checked:text-bosnianBlue"></i>
+                                <span class="text-xs font-medium" data-i18n="sick">Bolovanje</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="leave-type" value="other" class="peer sr-only">
+                            <div class="p-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-bosnianBlue peer-checked:bg-bosnianBlue/5 dark:peer-checked:bg-bosnianBlue/10 transition-all text-center">
+                                <i data-lucide="more-horizontal" class="w-5 h-5 mx-auto mb-1 text-gray-400 peer-checked:text-bosnianBlue"></i>
+                                <span class="text-xs font-medium" data-i18n="other">Ostalo</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Coverage Buddy -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="trade-during-absence">Zamjena tokom odsustva</label>
+                    <select id="coverage-buddy" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20 text-sm">
+                        <option value="" data-i18n="coverage-placeholder">Neko će preuzeti moja zaduženja...</option>
+                        <option value="sara">Sara Kovač (UX Designer)</option>
+                        <option value="ema">Ema Hadžić (Project Manager)</option>
+                        <option value="marko">Marko Petrović (DevOps)</option>
+                        <option value="none" data-i18n="coverage-none">Niko ne preuzima</option>
+                    </select>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="notes">Napomene</label>
+                    <textarea id="request-notes" rows="3" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20 resize-none text-sm" data-i18n-placeholder="notes-placeholder" placeholder="Dodatne informacije..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Preview Modal -->
+    <div id="pdf-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="app.closePdfModal()"></div>
+        <div class="absolute inset-4 md:inset-10 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="font-semibold" data-i18n="legal-document">Pravni dokument</h3>
+                <button onclick="app.closePdfModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto p-2 sm:p-8 bg-gray-100 dark:bg-gray-800">
+                <div id="pdf-content" class="bg-white max-w-2xl mx-auto shadow-lg font-serif text-sm leading-relaxed">
+                    <!-- PDF content injected here -->
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 sm:gap-3">
+                <button onclick="app.exportToCalendar()" class="border border-gray-300 dark:border-gray-600 px-4 sm:px-6 py-3 rounded-xl font-medium ios-button flex items-center justify-center gap-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                    <span data-i18n="add-to-calendar">Dodaj u kalendar</span>
+                </button>
+                <button onclick="app.downloadPDF()" class="bg-bosnianBlue text-white px-4 sm:px-6 py-3 rounded-xl font-medium ios-button flex items-center justify-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span data-i18n="download-pdf">Preuzmi PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Heatmap Modal -->
+    <div id="heatmap-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="app.closeTeamHeatmap()"></div>
+        <div class="absolute inset-4 md:inset-10 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="font-semibold" data-i18n="team-heatmap">Zauzetost tima - Heat Map</h3>
+                <button onclick="app.closeTeamHeatmap()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-auto p-6">
+                <div id="team-heatmap" class="grid grid-cols-7 gap-2">
+                    <!-- Heatmap injected by JS -->
+                </div>
+                <div class="mt-4 flex items-center gap-4 text-sm text-gray-500 justify-center">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-green-100 rounded"></div>
+                        <span data-i18n="heat-free">Slobodno</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-yellow-200 rounded"></div>
+                        <span data-i18n="heat12">1-2 na odmoru</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 bg-red-400 rounded"></div>
+                        <span data-i18n="heat-critical">Kritično (>3)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vacation Trade Modal -->
+    <div id="trade-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="app.closeVacationTrade()"></div>
+        <div class="absolute bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:bottom-auto md:right-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-white dark:bg-gray-900 md:rounded-3xl rounded-t-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="md:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div></div>
+            <div class="sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between rounded-t-3xl">
+                <button onclick="app.closeVacationTrade()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 ios-button">
+                    <span data-i18n="cancel">Otkaži</span>
+                </button>
+                <h3 class="font-semibold text-lg" data-i18n="day-swap">Zamjena dana</h3>
+                <button onclick="app.proposeTrade()" class="text-bosnianBlue font-semibold ios-button" data-i18n="trade-send">Pošalji</button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+                    <p class="text-sm text-blue-800 dark:text-blue-200" data-i18n="trade-desc">Predložite zamjenu dana sa kolegom. Obje strane moraju prihvatiti.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="trade-colleague">Kolege</label>
+                    <select id="trade-partner" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20 text-lg">
+                        <option value="" data-i18n="trade-colleague-placeholder">Odaberite kolege...</option>
+                        <option value="sara">Sara Kovač (15 dana preostalo)</option>
+                        <option value="ema">Ema Hadžić (8 dana preostalo)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="trade-you-give">Vi dajete</label>
+                        <select id="trade-give" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                            <option value="1" data-i18n="day1">1 dan</option>
+                            <option value="2" data-i18n="day2">2 dana</option>
+                            <option value="3" data-i18n="day3">3 dana</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="trade-you-receive">Vi dobijate</label>
+                        <select id="trade-receive" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                            <option value="1" data-i18n="day1">1 dan</option>
+                            <option value="2" data-i18n="day2">2 dana</option>
+                            <option value="3" data-i18n="day3">3 dana</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Availability Widget -->
+    <div id="availability-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="app.closeTeamAvailability()"></div>
+        <div class="absolute bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:bottom-auto md:right-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-md bg-white dark:bg-gray-900 md:rounded-3xl rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="md:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div></div>
+            <div class="sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between rounded-t-3xl">
+                <h3 class="font-semibold text-lg" data-i18n="who-is-at-work-today">Tko je na poslu danas?</h3>
+                <button onclick="app.closeTeamAvailability()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-4 sm:p-6">
+                <div id="availability-list" class="space-y-3">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div id="focus-mode" class="fixed inset-0 z-[60] bg-gradient-to-br from-indigo-900 to-purple-900 hidden items-center justify-center text-white p-4 sm:p-8 flex-col overflow-y-auto">
+        <div class="absolute top-6 right-6">
+            <button onclick="app.toggleFocusMode()" class="p-3 bg-white/10 rounded-full ios-button backdrop-blur-lg">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mb-6 animate-pulse backdrop-blur-xl">
+            <i data-lucide="plane" class="w-12 h-12"></i>
+        </div>
+        <h2 class="text-3xl font-bold mb-2" data-i18n="focus-title">Na odmoru</h2>
+        <p class="text-white/70 text-lg mb-8" data-i18n="focus-subtitle">Ne pitajte me o poslu.</p>
+        <div class="glass dark:bg-white/10 rounded-3xl p-6 max-w-sm w-full text-center backdrop-blur-xl">
+            <p class="text-sm text-white/60 mb-2" data-i18n="time-remaining">Preostalo vremena</p>
+            <p id="focus-countdown" class="text-4xl font-bold mb-4">5 dana</p>
+            <div class="flex justify-center gap-3">
+                <button onclick="app.showEmergencyContact()" class="bg-red-500/80 text-white px-6 py-3 rounded-full font-medium ios-button backdrop-blur-lg">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-2"></i>
+                    <span data-i18n="emergency">Hitni slučaj</span>
+                </button>
+            </div>
+        </div>
+        <div class="mt-8 text-center">
+            <p class="text-xs text-white/40" data-i18n="emergency-contact-label">Kontakt za hitne slučajeve:</p>
+            <p id="focus-emergency-contact" class="text-sm font-semibold mt-1"></p>
+        </div>
+    </div>
+
+    <!-- Haptic Context Menu (hidden by default, shown on long press) -->
+    <div id="haptic-menu" class="fixed z-50 hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden min-w-[200px]">
+        <button onclick="app.hapticAction('extend')" class="w-full px-4 py-3 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-100 dark:border-gray-700">
+            <i data-lucide="calendar-plus" class="w-4 h-4 text-bosnianBlue"></i>
+            <span data-i18n="extend-leave">Produži odmor</span>
+        </button>
+        <button onclick="app.hapticAction('cancel')" class="w-full px-4 py-3 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b border-gray-100 dark:border-gray-700">
+            <i data-lucide="x" class="w-4 h-4 text-red-500"></i>
+            <span data-i18n="cancel">Otkaži</span>
+        </button>
+        <button onclick="app.hapticAction('pdf')" class="w-full px-4 py-3 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3">
+            <i data-lucide="download" class="w-4 h-4 text-green-600"></i>
+            <span data-i18n="download-pdf">Preuzmi PDF</span>
+        </button>
+    </div>
+
+    <!-- Biometric Auth Simulation -->
+    <div id="biometric-modal" class="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm hidden items-center justify-center text-white flex-col">
+        <div class="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mb-6 animate-pulse">
+            <i data-lucide="fingerprint" class="w-10 h-10"></i>
+        </div>
+        <p class="text-lg font-medium mb-8" data-i18n="touch-to-confirm">Dodirnite za potvrdu</p>
+        <button onclick="app.simulateBiometricAuth()" class="w-16 h-16 rounded-full bg-bosnianBlue flex items-center justify-center ios-button shadow-lg shadow-bosnianBlue/50">
+            <i data-lucide="check" class="w-8 h-8"></i>
+        </button>
+    </div>
+
+    <!-- Add / Edit User Modal -->
+    <div id="user-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="app.closeUserModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-5 sm:p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 id="user-modal-title" class="font-semibold text-lg mb-6" data-i18n="add-user-title">Dodaj korisnika</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="full-name">Ime i prezime</label>
+                    <input type="text" id="user-name-input" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Email</label>
+                    <input type="email" id="user-email-input" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20 disabled:opacity-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="role-label">Uloga</label>
+                    <select id="user-role-input" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                        <option value="employee" data-i18n="employee">Zaposlenik</option>
+                        <option value="manager" data-i18n="manager">Menadžer</option>
+                        <option value="admin" data-i18n="admin">Administrator</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="entity-label">Entitet</label>
+                    <select id="user-entity-input" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                        <option value="fbih">Federacija BiH</option>
+                        <option value="rs">Republika Srpska</option>
+                        <option value="brcko">Brčko Distrikt</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="position-col">Pozicija</label>
+                    <input type="text" id="user-position-input" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="salary-label">Plata (KM/mj.)</label>
+                    <input type="number" id="user-salary-input" min="0" step="50" placeholder="0" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                </div>
+                <div id="user-password-field">
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="password-label">Lozinka</label>
+                    <input type="text" id="user-password-input" placeholder="pass123" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="phone-label">Telefon</label>
+                    <input type="tel" id="user-phone-input" placeholder="+387 61 000 000" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-bosnianBlue/20">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="app.closeUserModal()" class="flex-1 py-3 rounded-xl border border-gray-200 dark:border-gray-700 font-medium ios-button" data-i18n="cancel">Otkaži</button>
+                <button onclick="app.saveUser()" class="flex-1 py-3 rounded-xl bg-bosnianBlue text-white font-medium ios-button" data-i18n="save-btn">Sačuvaj</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script></body>
+</html>
