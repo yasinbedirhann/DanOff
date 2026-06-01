@@ -200,4 +200,4 @@ Built as a Software Engineering course project. Documentation includes:
 Kemal Matoruga
 Mustafa Bozteke
 Husejn Šišić
-Yasin Bedirhan Aksan
+Yasin Bedirhan Akşan
