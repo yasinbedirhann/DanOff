@@ -197,4 +197,7 @@ Built as a Software Engineering course project. Documentation includes:
 
 ## Author
 
-Kemal - Software Engineering Student
+Kemal Matoruga
+Mustafa Bozteke
+Husejn Šišić
+Yasin Bedirhan Aksan
